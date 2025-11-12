@@ -1,0 +1,231 @@
+﻿Option Explicit
+
+'=========================
+'  CONFIGURACIÓN LICENCIA
+'=========================
+Private Const LIC_URL As String = "https://raw.githubusercontent.com/GuilleWillWar/licencia-rsciei/refs/heads/master/licenciaSeguridad.dat"
+Private Const LIC_PATH_NET As String = "G:\.shortcut-targets-by-id\1P65F0WEnbkqGdLuZkYEkdNJt9YhTnbHX\AUTOMATIZACIÓN NORMAS\2_ON GOING\Recursos\licencia.dat"
+Private Const LIC_CACHE_DIR As String = ""  ' si vacío, se calculará a %ProgramData%\TuApp
+Private Const LIC_CACHE_FILE As String = "licencia.dat"
+
+'=========================
+'  ENTRY POINT
+'=========================
+Private Sub Workbook_Open()
+    On Error GoTo fallo_fatal
+
+    Dim ok As Boolean, msg As String
+    ok = IsAuthorized(msg)
+
+    If Not ok Then
+        MsgBox "Acceso denegado." & vbCrLf & _
+               "Este archivo solo puede usarse en equipos autorizados." & vbCrLf & _
+               "Detalle: " & msg & vbCrLf & _
+               "Si necesitas acceso, contacta con el administrador.", _
+               vbCritical + vbOKOnly, "Licencia inválida"
+        ThisWorkbook.Close SaveChanges:=False
+        Exit Sub
+    End If
+
+    Exit Sub
+
+fallo_fatal:
+    MsgBox "No se pudo validar la licencia (" & Err.Description & ")." & vbCrLf & _
+           "Verifica tu conexión a Internet o a la red corporativa y vuelve a abrir.", _
+           vbCritical + vbOKOnly, "Validación no disponible"
+    ThisWorkbook.Close SaveChanges:=False
+End Sub
+
+'=========================
+'  LÓGICA DE VALIDACIÓN
+'=========================
+Private Function IsAuthorized(Optional ByRef errMsg As String) As Boolean
+    Dim licText As String, source As String
+    Dim ok As Boolean
+
+    ' 1) Intentar URL
+    If LIC_URL <> "" Then
+        licText = ReadTextFromUrl(LIC_URL, errMsg)
+        If Len(licText) > 0 Then
+            source = "URL"
+            ' Guardar caché local
+            SaveTextToCache licText
+            ok = CheckLicenseText(licText, errMsg)
+            If ok Then
+                IsAuthorized = True
+                Exit Function
+            End If
+        End If
+    End If
+
+    ' 2) Fallback: ruta de red
+    If Dir$(LIC_PATH_NET, vbNormal Or vbHidden Or vbSystem) <> "" Then
+        licText = ReadAllText(LIC_PATH_NET, errMsg)
+        If Len(licText) > 0 Then
+            source = "NET"
+            SaveTextToCache licText
+            ok = CheckLicenseText(licText, errMsg)
+            If ok Then
+                IsAuthorized = True
+                Exit Function
+            End If
+        End If
+    End If
+
+    ' 3) Último recurso: caché local
+    licText = ReadAllText(GetCachePath(), errMsg)
+    If Len(licText) > 0 Then
+        source = "CACHE"
+        ok = CheckLicenseText(licText, errMsg)
+        If ok Then
+            IsAuthorized = True
+            Exit Function
+        End If
+    End If
+
+    If errMsg = "" Then errMsg = "No se encontró una licencia válida desde URL, red o caché."
+    IsAuthorized = False
+End Function
+
+'=========================
+'  PARSEO DE LICENCIA
+'=========================
+' Formatos admitidos (una por línea, mayúsc/minúsc indiferente):
+'   *                   -> permite a cualquiera
+'   MACHINE=PC-NOMBRE   -> autoriza por nombre de equipo (COMPUTERNAME)
+'   USER=usuario        -> autoriza por usuario (USERNAME)
+'   DOMAIN=MIEMPRESA    -> autoriza por dominio (USERDOMAIN)
+'   RSCIEI_2025_OK      -> opcional; si existe, se ignora como bandera informativa
+'   # comentario / ; comentario  -> ignorados
+Private Function CheckLicenseText(ByVal licText As String, Optional ByRef errMsg As String) As Boolean
+    Dim lines() As String, i As Long
+    Dim machine$, user$, domain$
+    Dim line$, k$, v$, posEq As Long
+
+    machine = UCase$(Trim$(Environ$("COMPUTERNAME")))
+    user = UCase$(Trim$(Environ$("USERNAME")))
+    domain = UCase$(Trim$(Environ$("USERDOMAIN")))
+
+    lines = Split(licText, vbNewLine)
+
+    For i = LBound(lines) To UBound(lines)
+        line = Trim$(lines(i))
+        If line = "" Then GoTo nextLine
+        If Left$(line, 1) = "#" Or Left$(line, 1) = ";" Then GoTo nextLine
+
+        If line = "*" Then
+            CheckLicenseText = True
+            Exit Function
+        End If
+
+        posEq = InStr(1, line, "=", vbTextCompare)
+        If posEq > 0 Then
+            k = UCase$(Trim$(Left$(line, posEq - 1)))
+            v = UCase$(Trim$(Mid$(line, posEq + 1)))
+
+            Select Case k
+                Case "MACHINE"
+                    If v = machine Then
+                        CheckLicenseText = True
+                        Exit Function
+                    End If
+                Case "USER"
+                    If v = user Then
+                        CheckLicenseText = True
+                        Exit Function
+                    End If
+                Case "DOMAIN"
+                    If v = domain Then
+                        CheckLicenseText = True
+                        Exit Function
+                    End If
+                Case Else
+                    ' Claves desconocidas: ignorar
+            End Select
+        Else
+            ' Línea sin "=": si quieres exigir una bandera, podrías validarla aquí
+            ' Ej: If UCase$(line) = "RSCIEI_2025_OK" Then haveFlag = True
+        End If
+
+nextLine:
+    Next i
+
+    errMsg = "El equipo/usuario no está autorizado según la lista de la licencia."
+    CheckLicenseText = False
+End Function
+
+'=========================
+'  utilidades de IO
+'=========================
+Private Function ReadTextFromUrl(ByVal url As String, Optional ByRef errMsg As String) As String
+    On Error GoTo EH
+    Dim http As Object
+    Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+    http.Open "GET", url, False
+    http.SetRequestHeader "User-Agent", "Excel-VBA-Lic-Check/1.0"
+    ' Si tu proxy/SSL da guerra, puedes habilitar auto-proxy:
+    ' http.SetAutoLogonPolicy 0 ' opcional
+    http.Send
+
+    If http.Status = 200 Then
+        ReadTextFromUrl = http.ResponseText
+    Else
+        errMsg = "HTTP " & http.Status & " al obtener la licencia."
+    End If
+    Exit Function
+EH:
+    errMsg = "Error HTTP: " & Err.Description
+End Function
+
+Private Function ReadAllText(ByVal filePath As String, Optional ByRef errMsg As String) As String
+    On Error GoTo EH
+    Dim f As Integer: f = FreeFile(0)
+    Open filePath For Binary As #f
+    ReadAllText = Space$(LOF(f))
+    Get #f, , ReadAllText
+    Close #f
+    Exit Function
+EH:
+    On Error Resume Next
+    If f <> 0 Then Close #f
+    errMsg = "No se pudo leer " & filePath & " (" & Err.Description & ")."
+End Function
+
+Private Sub SaveTextToCache(ByVal content As String)
+    On Error Resume Next
+    Dim p$: p = GetCachePath()
+    Dim folderPath$: folderPath = Left$(p, InStrRev(p, "\") - 1)
+    If Dir$(folderPath, vbDirectory) = "" Then MkDirRecursive folderPath
+
+    Dim f As Integer: f = FreeFile(0)
+    Open p For Output As #f
+    Print #f, content
+    Close #f
+End Sub
+
+Private Function GetCachePath() As String
+    Dim baseDir As String
+    If LIC_CACHE_DIR <> "" Then
+        baseDir = LIC_CACHE_DIR
+    Else
+        baseDir = Environ$("ProgramData") & "\AplicacionBeta" ' <-- cambia nombre carpeta si quieres
+    End If
+    GetCachePath = baseDir & "\" & LIC_CACHE_FILE
+End Function
+
+Private Sub MkDirRecursive(ByVal fullPath As String)
+    Dim parts() As String, i As Long, p As String
+    parts = Split(fullPath, "\")
+    p = parts(0) & "\"
+    For i = 1 To UBound(parts)
+        p = p & parts(i) & "\"
+        If Dir$(p, vbDirectory) = "" Then On Error Resume Next: MkDir p: On Error GoTo 0
+    Next i
+End Sub
+
+
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+    On Error Resume Next
+    ExportAllVBA   ' Exporta todos los mÃ
+    On Error GoTo 0
+End Sub

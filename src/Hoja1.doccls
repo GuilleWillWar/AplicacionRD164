@@ -1,0 +1,158 @@
+﻿Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+    'Cambio en el codigo para que se vea
+    
+    On Error GoTo fin
+
+    ' Soporte para celdas combinadas (si las hubiera)
+    If Target.MergeCells Then Set Target = Target.MergeArea
+
+    ' === PRIORIDAD: BOTONES/CELDAS ===
+    ' Calcular (G1)
+    If Not Intersect(Target, Me.Range("G1")) Is Nothing Then
+        Application.EnableEvents = False
+        CalcularTodo Me
+        Application.EnableEvents = True
+        Exit Sub
+    End If
+    
+    If Not Intersect(Target, Me.Range("G7")) Is Nothing Then
+        Application.EnableEvents = False
+        On Error Resume Next
+            GenerarHojaResumenVGP
+        On Error GoTo 0
+        Application.EnableEvents = True
+        Exit Sub
+    End If
+    
+
+
+    ' Abrir bloque 16:22 (G15)
+    If Not Intersect(Target, Me.Range("G15")) Is Nothing Then
+        Me.Rows("16:22").Hidden = False
+        Exit Sub
+    End If
+
+    ' Cerrar bloque 16:22 (G22)
+    If Not Intersect(Target, Me.Range("G22")) Is Nothing Then
+        Me.Rows("16:22").Hidden = True
+        Exit Sub
+    End If
+
+    ' Filtro despuÃ©s de mapear botones
+    If Target.CountLarge > 50 Then Exit Sub
+
+    ' === TUS MENSAJES/ACCIONES EXISTENTES (SIN CAMBIOS) ===
+    If Not Intersect(Target, Me.Range("A13")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O13").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("D9")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O3").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("D10")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O5").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("D11")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O11").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("C16")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O29").Value
+    End If
+    If Not Intersect(Target, Me.Range("C17")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O29").Value
+    End If
+    If Not Intersect(Target, Me.Range("C18")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O29").Value
+    End If
+    If Not Intersect(Target, Me.Range("C19")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O29").Value
+    End If
+    If Not Intersect(Target, Me.Range("C20")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O29").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("D20")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O30").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("C21")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O31").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("C22")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Superficie NRI").Range("O35").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("D30")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Recorridos Evacuacion").Range("J3").Value
+    End If
+    If Not Intersect(Target, Me.Range("D31")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Recorridos Evacuacion").Range("J5").Value
+    End If
+    If Not Intersect(Target, Me.Range("D32")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Recorridos Evacuacion").Range("J7").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("D46")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Resistencia Estructural").Range("G94").Value
+    End If
+    If Not Intersect(Target, Me.Range("D47")) Is Nothing Then
+        MsgBox ThisWorkbook.Sheets("Resistencia Estructural").Range("G96").Value
+    End If
+
+    If Not Intersect(Target, Me.Range("A58")) Is Nothing Then
+        Call LimpiarAnexos
+        Call ExtraerCasosATablas
+        Call GenerarMemoria 'Genero la memoria
+    End If
+
+    If Not Intersect(Target, Me.Range("A57")) Is Nothing Then
+        Call BorrarCasosNumericos
+    End If
+    
+
+    If Not Intersect(Target, Me.Range("A56")) Is Nothing Then
+        Application.EnableEvents = False
+        Call ArchivarCasoDesdeInterfaz(Me)
+        Application.EnableEvents = True
+        Exit Sub
+    End If
+
+    
+    If Not Intersect(Target, Me.Range("H1")) Is Nothing Then
+        Call LimpiarEntradas
+        Exit Sub
+    End If
+
+fin:
+    Application.EnableEvents = True
+End Sub
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    'Cambios en el codigo
+    
+    On Error GoTo fin
+
+    If g_BloquearEventos Then Exit Sub
+    If Not EstadoCaso_EstaInicializado(Me) Then Exit Sub
+
+    Dim rEstado As Range
+    Set rEstado = ObtenerCeldaEstado(Me)
+    If Not rEstado Is Nothing Then
+        If Not Intersect(Target, rEstado) Is Nothing Then Exit Sub
+    End If
+
+    Application.EnableEvents = False
+    EstadoCaso_MarcarModificado Me
+fin:
+    Application.EnableEvents = True
+End Sub
+
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+    On Error Resume Next
+    ExportAllVBA
+    On Error GoTo 0
+End Sub
