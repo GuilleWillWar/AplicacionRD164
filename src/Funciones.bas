@@ -1428,7 +1428,7 @@ Public Sub calcularExtintores()
     If wsHoja Is Nothing Then Set wsHoja = ActiveSheet
     wsHoja.Activate
 
-    Dim Nri As String
+    Dim nri As String
     Dim Config As String
     Dim superficie As Variant
     Dim eficacia As String
@@ -1475,19 +1475,19 @@ Public Sub calcularExtintores()
     End With
     
     ' Lectura de datos
-    Nri = Trim(wsHoja.Range(celdaNri).Value)
+    nri = Trim(wsHoja.Range(celdaNri).Value)
     superficie = wsHoja.Range(celdaSuperficie).Value
     Config = Trim(wsHoja.Range(celdaConfig).Value)
 
     ' Calculo de eficacia segn NRI
-    Select Case LCase(Nri)
+    Select Case LCase(nri)
     Case "bajo 1", "bajo 2", "medio 3", "medio 4", "medio 5"
         eficacia = "21A"
     Case "alto 6", "alto 7", "alto 8"
         eficacia = "34A"
     Case Else
         ' En vez de MsgBox ponemos error en salida y comentario
-        errores = "- NRI no reconocido: " & Nri
+        errores = "- NRI no reconocido: " & nri
         With wsHoja
             .Range(celdaEficaciaMinima).Value = "Error"
             .Range(celdaNumero).Value = "Error"
@@ -1503,7 +1503,7 @@ Public Sub calcularExtintores()
     End Select
 
     ' Calculo del nmero de extintores
-    Select Case LCase(Nri)
+    Select Case LCase(nri)
     Case "bajo 1", "bajo 2"
         If superficie > 600 Then
             numeroExtintores = Application.WorksheetFunction.RoundUp((superficie - 600) / 200, 0) + 1
@@ -1525,7 +1525,7 @@ Public Sub calcularExtintores()
     End Select
 
     ' Evaluar si se requieren extintores porttiles
-    If Config = "D" And LCase(Nri) <> "bajo 1" Then
+    If Config = "D" And LCase(nri) <> "bajo 1" Then
         wsHoja.Range(celdaExtintoresPortatiles).Value = "Si necesita extintores moviles en funcion de la geometria del establecimiento"
     Else
         wsHoja.Range(celdaExtintoresPortatiles).Value = "En caso de no existir combustibles liquidos en el establecimiento, no necesita extintores porttiles"
@@ -1549,7 +1549,7 @@ Public Sub calcularBies()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("BIES")
 
-    Dim Nri As String
+    Dim nri As String
     Dim Config As String
     Dim superficie As Variant
     Dim configActual As String
@@ -1591,7 +1591,7 @@ Public Sub calcularBies()
     End With
 
     ' Entradas limpias
-    Nri = Trim(wsHoja.Range(celdaNri).Value)
+    nri = Trim(wsHoja.Range(celdaNri).Value)
     superficie = CDbl(wsHoja.Range(celdaSuperficie).Value)
     Config = Trim(wsHoja.Range(celdaConfig).Value)
 
@@ -1609,7 +1609,7 @@ Public Sub calcularBies()
         nriActual = Trim(ws.Cells(fila, 3).Value)
         superficieActual = ws.Cells(fila, 4).Value
 
-        If configActual = Config And nriActual = Nri And superficie >= superficieActual Then
+        If configActual = Config And nriActual = nri And superficie >= superficieActual Then
             wsHoja.Range(celdaNecesitaBIES).Value = ws.Cells(fila, 5).Value
             wsHoja.Range(celdaTipoBie).Value = ws.Cells(fila, 6).Value
             Exit For
@@ -1686,7 +1686,7 @@ Public Sub calcularExtincioAuto()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Extincion Auto")
 
-    Dim Nri As String, Config As String, actividad As String
+    Dim nri As String, Config As String, actividad As String
     Dim superficie As Double
 
     Dim fila As Long, ultimaFila As Long
@@ -1705,7 +1705,7 @@ Public Sub calcularExtincioAuto()
     ' --- Cargar entradas desde Interfaz ---
     Config = UCase$(Trim$(CStr(wsHoja.Range(celdaConfig).Value)))
     actividad = UCase$(Trim$(CStr(wsHoja.Range(celdaActividad).Value)))
-    Nri = UCase$(Trim$(CStr(wsHoja.Range(celdaNri).Value)))
+    nri = UCase$(Trim$(CStr(wsHoja.Range(celdaNri).Value)))
 
     If IsError(wsHoja.Range(celdaSuperficie).Value) Or _
        Len(Trim$(CStr(wsHoja.Range(celdaSuperficie).Value))) = 0 Or _
@@ -1724,7 +1724,7 @@ Public Sub calcularExtincioAuto()
     ' --- Validaciones ---
     If Len(Config) = 0 Then errores = errores & "- Falta tipo de configuracion" & vbCrLf
     If Len(actividad) = 0 Then errores = errores & "- Falta tipo de actividad" & vbCrLf
-    If Len(Nri) = 0 Then errores = errores & "- Falta NRI" & vbCrLf
+    If Len(nri) = 0 Then errores = errores & "- Falta NRI" & vbCrLf
     If superficie < 0 Then errores = errores & "- Superficie no valida" & vbCrLf
 
     With wsHoja
@@ -1758,7 +1758,7 @@ Public Sub calcularExtincioAuto()
         actividadActual = UCase$(Trim$(CStr(ws.Cells(fila, 4).Value)))
 
         ' Coincidencia por las tres claves
-        If (configActual = Config) And (nriActual = Nri) And (actividadActual = actividad) Then
+        If (configActual = Config) And (nriActual = nri) And (actividadActual = actividad) Then
             hayMatch = True
 
             If IsNumeric(ws.Cells(fila, 5).Value) Then
@@ -1799,7 +1799,7 @@ Public Sub calcularHumos()
     Set ws = ThisWorkbook.Sheets("Control Humos")
 
     Dim superficie As Double
-    Dim Nri As String, actividad As String
+    Dim nri As String, actividad As String
     Dim fila As Long, ultimaFila As Long
     Dim nriActual As String, actividadActual As String
     Dim superficieActual As Double
@@ -1840,7 +1840,7 @@ Public Sub calcularHumos()
     End With
 
     ' --- Lectura de entradas
-    Nri = LCase$(Trim$(CStr(wsHoja.Range(celdaNri).Value)))
+    nri = LCase$(Trim$(CStr(wsHoja.Range(celdaNri).Value)))
     actividad = LCase$(Trim$(CStr(wsHoja.Range(celdaActividad).Value)))
     superficie = CDbl(wsHoja.Range(celdaSuperficie).Value)
 
@@ -1855,7 +1855,7 @@ Public Sub calcularHumos()
         nriActual = LCase$(Trim$(CStr(ws.Cells(fila, 2).Value)))
         actividadActual = LCase$(Trim$(CStr(ws.Cells(fila, 3).Value)))
 
-        If nriActual = Nri And actividadActual = actividad Then
+        If nriActual = nri And actividadActual = actividad Then
             If IsNumeric(ws.Cells(fila, 4).Value) Then
                 superficieActual = CDbl(ws.Cells(fila, 4).Value)
 
@@ -1890,7 +1890,7 @@ Public Function CopiarDatosSup(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, configuracion As Variant, Nri As Variant, edificio As Variant
+    Dim nombre As Variant, configuracion As Variant, nri As Variant, edificio As Variant
     Dim superficie As Variant, superficieCorregida As Variant, viabilidad As Variant
 
     Const celdaSuperficieCorregida As String = "F8"
@@ -1904,13 +1904,13 @@ Public Function CopiarDatosSup(Optional mostrarMensajes As Boolean = True) As Bo
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
     configuracion = wsInterfaz.Range(celdaConfiguracion).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     superficieCorregida = wsInterfaz.Range(celdaSuperficieCorregida).Value
     viabilidad = wsInterfaz.Range(celdaViabilidad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(superficieCorregida) Or IsEmpty(viabilidad) Then
         
         If mostrarMensajes Then
@@ -1923,7 +1923,7 @@ Public Function CopiarDatosSup(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Comprobar si alguno de los campos contiene la palabra "Error"
-    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(Nri) = "ERROR" _
+    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(nri) = "ERROR" _
        Or UCase(superficie) = "ERROR" Or UCase(superficieCorregida) = "ERROR" Or UCase(viabilidad) = "ERROR" Then
         
         If mostrarMensajes Then
@@ -1945,7 +1945,7 @@ Public Function CopiarDatosSup(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = configuracion
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = superficie
         .Cells(filaDestino, "F").Value = superficieCorregida
         .Cells(filaDestino, "G").Value = viabilidad
@@ -2034,7 +2034,7 @@ Public Function CopiarDatosResSec(Optional mostrarMensajes As Boolean = True) As
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim edificio As Variant, nombre As Variant, configuracion As Variant, Nri As Variant
+    Dim edificio As Variant, nombre As Variant, configuracion As Variant, nri As Variant
     Dim superficie As Variant, resistencia As Variant
 
     ' Referencias a hojas
@@ -2045,12 +2045,12 @@ Public Function CopiarDatosResSec(Optional mostrarMensajes As Boolean = True) As
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
     configuracion = wsInterfaz.Range(celdaConfiguracion).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     resistencia = wsInterfaz.Range(celdaResistencia).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(resistencia) Then
 
         If mostrarMensajes Then
@@ -2063,7 +2063,7 @@ Public Function CopiarDatosResSec(Optional mostrarMensajes As Boolean = True) As
     End If
 
     ' Comprobar si alguno de los campos contiene la palabra "Error"
-    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(Nri) = "ERROR" _
+    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(nri) = "ERROR" _
        Or UCase(superficie) = "ERROR" Or UCase(resistencia) = "ERROR" Then
         
         If mostrarMensajes Then
@@ -2085,7 +2085,7 @@ Public Function CopiarDatosResSec(Optional mostrarMensajes As Boolean = True) As
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = configuracion
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = superficie
         .Cells(filaDestino, "F").Value = resistencia
     End With
@@ -2104,7 +2104,7 @@ Public Function CopiarDatosResExt(Optional mostrarMensajes As Boolean = True) As
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
     
-    Dim nombre As Variant, configuracion As Variant, Nri As Variant
+    Dim nombre As Variant, configuracion As Variant, nri As Variant
     Dim superficie As Variant, resistencia As Variant, edificio As Variant
     
 
@@ -2116,12 +2116,12 @@ Public Function CopiarDatosResExt(Optional mostrarMensajes As Boolean = True) As
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
     configuracion = wsInterfaz.Range(celdaConfiguracion).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     resistencia = wsInterfaz.Range(celdaResistencia).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(resistencia) Then
         
         If mostrarMensajes Then
@@ -2134,7 +2134,7 @@ Public Function CopiarDatosResExt(Optional mostrarMensajes As Boolean = True) As
     End If
 
     ' Comprobar si alguno de los campos contiene la palabra "Error"
-    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(Nri) = "ERROR" _
+    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(nri) = "ERROR" _
        Or UCase(superficie) = "ERROR" Or UCase(resistencia) = "ERROR" Then
         
         If mostrarMensajes Then
@@ -2156,7 +2156,7 @@ Public Function CopiarDatosResExt(Optional mostrarMensajes As Boolean = True) As
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = configuracion
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = superficie
         .Cells(filaDestino, "F").Value = resistencia
     End With
@@ -2243,7 +2243,7 @@ Public Function CopiarDatosSalidas(Optional mostrarMensajes As Boolean = True) A
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, salidas As Variant, Nri As Variant, longitud As Variant
+    Dim nombre As Variant, salidas As Variant, nri As Variant, longitud As Variant
     Dim superficie As Variant, distancia1 As Variant, distancia2 As Variant, edificio As Variant
 
 
@@ -2254,14 +2254,14 @@ Public Function CopiarDatosSalidas(Optional mostrarMensajes As Boolean = True) A
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     salidas = wsInterfaz.Range(celdaSalidas).Value
     distancia1 = wsInterfaz.Range(celdaDistancia1).Value
     distancia2 = wsInterfaz.Range(celdaDistancia2).Value
 
     ' Validar que todos los valores obligatorios estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(salidas) Then
 
         If mostrarMensajes Then
@@ -2274,7 +2274,7 @@ Public Function CopiarDatosSalidas(Optional mostrarMensajes As Boolean = True) A
     End If
 
     ' Comprobar si alguno de los campos contiene la palabra "Error"
-    If UCase(nombre) = "ERROR" Or UCase(Nri) = "ERROR" Or UCase(superficie) = "ERROR" _
+    If UCase(nombre) = "ERROR" Or UCase(nri) = "ERROR" Or UCase(superficie) = "ERROR" _
        Or UCase(salidas) = "ERROR" Or UCase(distancia1) = "ERROR" Or UCase(distancia2) = "ERROR" Then
         
         If mostrarMensajes Then
@@ -2302,7 +2302,7 @@ Public Function CopiarDatosSalidas(Optional mostrarMensajes As Boolean = True) A
     With wsDestino
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
-        .Cells(filaDestino, "C").Value = Nri
+        .Cells(filaDestino, "C").Value = nri
         .Cells(filaDestino, "D").Value = superficie
         .Cells(filaDestino, "E").Value = salidas
         .Cells(filaDestino, "F").Value = longitud
@@ -2322,7 +2322,7 @@ Public Function CopiarDatosRes(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, configuracion As Variant, Nri As Variant
+    Dim nombre As Variant, configuracion As Variant, nri As Variant
     Dim superficie As Variant, resistencia As Variant, edificio As Variant
 
     ' Referencias a hojas
@@ -2333,12 +2333,12 @@ Public Function CopiarDatosRes(Optional mostrarMensajes As Boolean = True) As Bo
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
     configuracion = wsInterfaz.Range(celdaConfiguracion).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     resistencia = wsInterfaz.Range(celdaResultadoResistenciaEstructural).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(configuracion) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(resistencia) Then
 
         If mostrarMensajes Then
@@ -2351,7 +2351,7 @@ Public Function CopiarDatosRes(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Comprobar si alguno de los campos contiene la palabra "Error"
-    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(Nri) = "ERROR" _
+    If UCase(nombre) = "ERROR" Or UCase(configuracion) = "ERROR" Or UCase(nri) = "ERROR" _
        Or UCase(superficie) = "ERROR" Or UCase(resistencia) = "ERROR" Then
 
         If mostrarMensajes Then
@@ -2373,7 +2373,7 @@ Public Function CopiarDatosRes(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = configuracion
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = superficie
         .Cells(filaDestino, "F").Value = resistencia
     End With
@@ -2392,7 +2392,7 @@ Public Function CopiarDatosDetAuto(Optional mostrarMensajes As Boolean = True) A
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant
     Dim superficie As Variant, actividad As Variant, edificio As Variant
 
     Const celdaDeteccionAuto As String = "A51"
@@ -2404,13 +2404,13 @@ Public Function CopiarDatosDetAuto(Optional mostrarMensajes As Boolean = True) A
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exige = wsInterfaz.Range(celdaDeteccionAuto).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(exige) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -2423,7 +2423,7 @@ Public Function CopiarDatosDetAuto(Optional mostrarMensajes As Boolean = True) A
     End If
 
     ' Comprobar si alguno de los campos contiene la palabra "Error"
-    If UCase(nombre) = "ERROR" Or UCase(Nri) = "ERROR" Or UCase(superficie) = "ERROR" _
+    If UCase(nombre) = "ERROR" Or UCase(nri) = "ERROR" Or UCase(superficie) = "ERROR" _
        Or UCase(exige) = "ERROR" Or UCase(actividad) = "ERROR" Then
 
         If mostrarMensajes Then
@@ -2445,7 +2445,7 @@ Public Function CopiarDatosDetAuto(Optional mostrarMensajes As Boolean = True) A
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exige
     End With
@@ -2464,7 +2464,7 @@ Public Function CopiarDatosMan(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant
     Dim superficie As Variant, actividad As Variant, edificio As Variant
 
     ' Referencias a hojas
@@ -2474,13 +2474,13 @@ Public Function CopiarDatosMan(Optional mostrarMensajes As Boolean = True) As Bo
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exige = wsInterfaz.Range(celdaDeteccionManual).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(exige) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -2493,7 +2493,7 @@ Public Function CopiarDatosMan(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Comprobar si alguno de los campos contiene la palabra "Error"
-    If UCase(nombre) = "ERROR" Or UCase(Nri) = "ERROR" Or UCase(superficie) = "ERROR" _
+    If UCase(nombre) = "ERROR" Or UCase(nri) = "ERROR" Or UCase(superficie) = "ERROR" _
        Or UCase(exige) = "ERROR" Or UCase(actividad) = "ERROR" Then
 
         If mostrarMensajes Then
@@ -2515,7 +2515,7 @@ Public Function CopiarDatosMan(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exige
     End With
@@ -2534,7 +2534,7 @@ Public Function CopiarDatosAlr(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exigeAuto As Variant, exigeMan As Variant
+    Dim nombre As Variant, nri As Variant, exigeAuto As Variant, exigeMan As Variant
     Dim superficie As Variant, actividad As Variant, exigeAlr As Variant, edificio As Variant
 
 
@@ -2545,14 +2545,14 @@ Public Function CopiarDatosAlr(Optional mostrarMensajes As Boolean = True) As Bo
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exigeAuto = wsInterfaz.Range(celdaExigeAuto).Value
     exigeMan = wsInterfaz.Range(celdaExigeMan).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(exigeAuto) Or IsEmpty(exigeMan) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -2565,7 +2565,7 @@ Public Function CopiarDatosAlr(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Validar que ningn valor sea "Error"
-    If nombre = "Error" Or Nri = "Error" Or superficie = "Error" _
+    If nombre = "Error" Or nri = "Error" Or superficie = "Error" _
        Or exigeAuto = "Error" Or exigeMan = "Error" Or actividad = "Error" Then
 
         If mostrarMensajes Then
@@ -2594,7 +2594,7 @@ Public Function CopiarDatosAlr(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exigeAlr
     End With
@@ -2613,7 +2613,7 @@ Public Function CopiarDatosMeg(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant
     Dim superficie As Variant, actividad As Variant, edificio As Variant
 
     ' Referencias a hojas
@@ -2623,13 +2623,13 @@ Public Function CopiarDatosMeg(Optional mostrarMensajes As Boolean = True) As Bo
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exige = wsInterfaz.Range(celdaMegafonia).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(exige) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -2642,7 +2642,7 @@ Public Function CopiarDatosMeg(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Validar que ningn valor sea "Error"
-    If nombre = "Error" Or Nri = "Error" Or superficie = "Error" _
+    If nombre = "Error" Or nri = "Error" Or superficie = "Error" _
        Or exige = "Error" Or actividad = "Error" Then
 
         If mostrarMensajes Then
@@ -2664,7 +2664,7 @@ Public Function CopiarDatosMeg(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exige
     End With
@@ -2683,7 +2683,7 @@ Public Function CopiarDatosHidrantes(Optional mostrarMensajes As Boolean = True)
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exigeCam As Variant, exigeDir As Variant
+    Dim nombre As Variant, nri As Variant, exigeCam As Variant, exigeDir As Variant
     Dim superficie As Variant, actividad As Variant, edificio As Variant
 
 
@@ -2694,14 +2694,14 @@ Public Function CopiarDatosHidrantes(Optional mostrarMensajes As Boolean = True)
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exigeCam = wsInterfaz.Range(celdaExigeCam).Value
     exigeDir = wsInterfaz.Range(celdaExigeDir).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(exigeCam) Or IsEmpty(exigeDir) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -2714,7 +2714,7 @@ Public Function CopiarDatosHidrantes(Optional mostrarMensajes As Boolean = True)
     End If
 
     ' Validar que no haya valores con texto "Error"
-    If LCase(nombre) = "error" Or LCase(Nri) = "error" _
+    If LCase(nombre) = "error" Or LCase(nri) = "error" _
        Or LCase(superficie) = "error" Or LCase(exigeCam) = "error" _
        Or LCase(exigeDir) = "error" Or LCase(actividad) = "error" Then
 
@@ -2737,7 +2737,7 @@ Public Function CopiarDatosHidrantes(Optional mostrarMensajes As Boolean = True)
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exigeCam
         .Cells(filaDestino, "G").Value = exigeDir
@@ -2757,7 +2757,7 @@ Public Function CopiarDatosExt(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant, edificio As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant, edificio As Variant
     Dim superficie As Variant, actividad As Variant, numero As Variant
 
 
@@ -2768,13 +2768,13 @@ Public Function CopiarDatosExt(Optional mostrarMensajes As Boolean = True) As Bo
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     numero = wsInterfaz.Range(celdaNumero).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) _
+    If IsEmpty(nombre) Or IsEmpty(nri) _
        Or IsEmpty(superficie) Or IsEmpty(numero) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -2787,7 +2787,7 @@ Public Function CopiarDatosExt(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Comprobar si algn valor contiene el texto "Error"
-    If LCase(nombre) = "error" Or LCase(Nri) = "error" _
+    If LCase(nombre) = "error" Or LCase(nri) = "error" _
        Or LCase(superficie) = "error" Or LCase(numero) = "error" _
        Or LCase(actividad) = "error" Then
 
@@ -2817,7 +2817,7 @@ Public Function CopiarDatosExt(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exige
         .Cells(filaDestino, "G").Value = numero
@@ -2837,7 +2837,7 @@ Public Function CopiarDatosBie(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant, edificio As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant, edificio As Variant
     Dim superficie As Variant, actividad As Variant, tipo As Variant
 
 
@@ -2848,14 +2848,14 @@ Public Function CopiarDatosBie(Optional mostrarMensajes As Boolean = True) As Bo
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exige = wsInterfaz.Range(celdaNecesitaBIES).Value
     tipo = wsInterfaz.Range(celdaTipo).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) Or IsEmpty(exige) _
+    If IsEmpty(nombre) Or IsEmpty(nri) Or IsEmpty(exige) _
        Or IsEmpty(superficie) Or IsEmpty(tipo) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -2868,7 +2868,7 @@ Public Function CopiarDatosBie(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Validar que no haya errores en los datos
-    If LCase(nombre) = "error" Or LCase(Nri) = "error" Or LCase(superficie) = "error" _
+    If LCase(nombre) = "error" Or LCase(nri) = "error" Or LCase(superficie) = "error" _
        Or LCase(actividad) = "error" Or LCase(exige) = "error" Or LCase(tipo) = "error" Then
 
         If mostrarMensajes Then
@@ -2890,7 +2890,7 @@ Public Function CopiarDatosBie(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exige
         .Cells(filaDestino, "G").Value = tipo
@@ -2910,7 +2910,7 @@ Public Function CopiarDatosHumos(Optional mostrarMensajes As Boolean = True) As 
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant, edificio As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant, edificio As Variant
     Dim superficie As Variant
 
 
@@ -2921,12 +2921,12 @@ Public Function CopiarDatosHumos(Optional mostrarMensajes As Boolean = True) As 
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exige = wsInterfaz.Range(celdaNecesitaHumos).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) Or IsEmpty(exige) _
+    If IsEmpty(nombre) Or IsEmpty(nri) Or IsEmpty(exige) _
        Or IsEmpty(superficie) Then
 
         If mostrarMensajes Then
@@ -2939,7 +2939,7 @@ Public Function CopiarDatosHumos(Optional mostrarMensajes As Boolean = True) As 
     End If
 
     ' Validar que no haya errores en los campos (insensible a mayusculas)
-    If LCase(nombre) = "error" Or LCase(Nri) = "error" _
+    If LCase(nombre) = "error" Or LCase(nri) = "error" _
        Or LCase(exige) = "error" Or LCase(superficie) = "error" Then
 
         If mostrarMensajes Then
@@ -2960,7 +2960,7 @@ Public Function CopiarDatosHumos(Optional mostrarMensajes As Boolean = True) As 
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = exige
     End With
 
@@ -2978,7 +2978,7 @@ Public Function CopiarDatosAuto(Optional mostrarMensajes As Boolean = True) As B
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant, edificio As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant, edificio As Variant
     Dim superficie As Variant, actividad As Variant
 
 
@@ -2989,13 +2989,13 @@ Public Function CopiarDatosAuto(Optional mostrarMensajes As Boolean = True) As B
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exige = wsInterfaz.Range(celdaNecesitaExtAuto).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) Or IsEmpty(exige) _
+    If IsEmpty(nombre) Or IsEmpty(nri) Or IsEmpty(exige) _
        Or IsEmpty(superficie) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -3008,7 +3008,7 @@ Public Function CopiarDatosAuto(Optional mostrarMensajes As Boolean = True) As B
     End If
 
     ' Validar que no haya errores en los campos (insensible a mayusculas)
-    If LCase(nombre) = "error" Or LCase(Nri) = "error" _
+    If LCase(nombre) = "error" Or LCase(nri) = "error" _
        Or LCase(exige) = "error" Or LCase(superficie) = "error" _
        Or LCase(actividad) = "error" Then
 
@@ -3031,7 +3031,7 @@ Public Function CopiarDatosAuto(Optional mostrarMensajes As Boolean = True) As B
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exige
     End With
@@ -3050,7 +3050,7 @@ Public Function CopiarDatosCol(Optional mostrarMensajes As Boolean = True) As Bo
     Dim wsDestino As Worksheet
     Dim filaDestino As Long
 
-    Dim nombre As Variant, Nri As Variant, exige As Variant, edificio As Variant
+    Dim nombre As Variant, nri As Variant, exige As Variant, edificio As Variant
     Dim superficie As Variant, actividad As Variant
 
     ' Referencias a hojas
@@ -3060,13 +3060,13 @@ Public Function CopiarDatosCol(Optional mostrarMensajes As Boolean = True) As Bo
     ' Obtener los valores de Interfaz
     edificio = wsInterfaz.Range(celdaEdificio).Value
     nombre = wsInterfaz.Range(celdaNombre).Value
-    Nri = wsInterfaz.Range(celdaNri).Value
+    nri = wsInterfaz.Range(celdaNri).Value
     superficie = wsInterfaz.Range(celdaSuperficie).Value
     exige = wsInterfaz.Range(celdaNecesitaCol).Value
     actividad = wsInterfaz.Range(celdaActividad).Value
 
     ' Validar que todos los valores estn rellenos
-    If IsEmpty(nombre) Or IsEmpty(Nri) Or IsEmpty(exige) _
+    If IsEmpty(nombre) Or IsEmpty(nri) Or IsEmpty(exige) _
        Or IsEmpty(superficie) Or IsEmpty(actividad) Then
 
         If mostrarMensajes Then
@@ -3079,7 +3079,7 @@ Public Function CopiarDatosCol(Optional mostrarMensajes As Boolean = True) As Bo
     End If
 
     ' Validar que no haya errores en los campos (insensible a mayusculas)
-    If LCase(nombre) = "error" Or LCase(Nri) = "error" Or LCase(exige) = "error" _
+    If LCase(nombre) = "error" Or LCase(nri) = "error" Or LCase(exige) = "error" _
        Or LCase(superficie) = "error" Or LCase(actividad) = "error" Then
 
         If mostrarMensajes Then
@@ -3101,7 +3101,7 @@ Public Function CopiarDatosCol(Optional mostrarMensajes As Boolean = True) As Bo
         .Cells(filaDestino, "A").Value = edificio
         .Cells(filaDestino, "B").Value = nombre
         .Cells(filaDestino, "C").Value = superficie
-        .Cells(filaDestino, "D").Value = Nri
+        .Cells(filaDestino, "D").Value = nri
         .Cells(filaDestino, "E").Value = actividad
         .Cells(filaDestino, "F").Value = exige
     End With
@@ -4581,7 +4581,7 @@ Public Function ObtenerCeldaEstado(ByVal ws As Worksheet) As Range
     ' 1) Intentar nombre local "EstadoCaso"
     On Error Resume Next
     Set r = Nothing
-    Set r = ws.names("EstadoCaso").RefersToRange
+    Set r = ws.Names("EstadoCaso").RefersToRange
     On Error GoTo 0
 
     ' 2) Si no existe el nombre local, usar la celda por defecto (G6)
@@ -4594,7 +4594,7 @@ Public Function ObtenerCeldaEstado(ByVal ws As Worksheet) As Range
     ' 3) Si aun es Nothing (G6 no existe por algun motivo), intenta crear el nombre local y devolver G6
     If r Is Nothing Then
         On Error Resume Next
-        ws.names.add Name:="EstadoCaso", RefersTo:=ws.Range(ADDR_G6)
+        ws.Names.add Name:="EstadoCaso", RefersTo:=ws.Range(ADDR_G6)
         Set r = ws.Range(ADDR_G6)
         On Error GoTo 0
     End If
@@ -4685,7 +4685,7 @@ Public Sub DiagnosticarEstadoCaso()
 
     ' Existe un nombre 'EstadoCaso' local y/o global?
     Dim tieneLocal As Boolean, tieneGlobal As Boolean, refLocal As String, refGlobal As String
-    For Each nm In ThisWorkbook.names
+    For Each nm In ThisWorkbook.Names
         If LCase$(nm.Name) = LCase$(ws.Name & "!EstadoCaso") Then
             tieneLocal = True: refLocal = nm.RefersTo
         ElseIf LCase$(nm.Name) = "estadocaso" Then
@@ -4710,9 +4710,9 @@ End Sub
 Public Sub CrearNombreLocal_EstadoCaso_G6()
     Dim ws As Worksheet: Set ws = ActiveSheet
     On Error Resume Next
-    ws.names("EstadoCaso").Delete
+    ws.Names("EstadoCaso").Delete
     On Error GoTo 0
-    ws.names.add Name:="EstadoCaso", RefersTo:=ws.Range(ADDR_G6)
+    ws.Names.add Name:="EstadoCaso", RefersTo:=ws.Range(ADDR_G6)
     MsgBox "Nombre local 'EstadoCaso' creado en " & ws.Name & " -> G6"
 End Sub
 
@@ -4731,17 +4731,17 @@ End Sub
 ' --- Flag por hoja: ya se ha pulsado Calcular alguna vez? ---
 Public Sub EstadoCaso_SetInicializado(ByVal ws As Worksheet, ByVal valor As Boolean)
     On Error Resume Next
-    ws.names("EstadoCaso_Inicializado").Delete
+    ws.Names("EstadoCaso_Inicializado").Delete
     On Error GoTo 0
 
     ' Guardamos un nombre local que evalua a TRUE/FALSE
-    ws.names.add Name:="EstadoCaso_Inicializado", RefersTo:="=" & UCase$(CStr(valor))
+    ws.Names.add Name:="EstadoCaso_Inicializado", RefersTo:="=" & UCase$(CStr(valor))
 End Sub
 
 Public Function EstadoCaso_EstaInicializado(ByVal ws As Worksheet) As Boolean
     Dim nm As Name
     On Error Resume Next
-    Set nm = ws.names("EstadoCaso_Inicializado")
+    Set nm = ws.Names("EstadoCaso_Inicializado")
     If Not nm Is Nothing Then
         EstadoCaso_EstaInicializado = CBool(Evaluate(nm.RefersTo))
     Else
@@ -4754,12 +4754,12 @@ Public Sub Fix_Estado_G6()
 
     ' 1) Borrar nombres en conflicto
     On Error Resume Next
-    ThisWorkbook.names("EstadoCaso").Delete
-    ws.names("EstadoCaso").Delete
+    ThisWorkbook.Names("EstadoCaso").Delete
+    ws.Names("EstadoCaso").Delete
     On Error GoTo 0
 
     ' 2) Crear nombre LOCAL apuntando a G6
-    ws.names.add Name:="EstadoCaso", RefersTo:=ws.Range(ADDR_G6)
+    ws.Names.add Name:="EstadoCaso", RefersTo:=ws.Range(ADDR_G6)
 
     ' 3) Pintar para comprobar
     EstadoCaso_MarcarCalculo ws
@@ -5312,7 +5312,7 @@ Public Sub Diagnostico_Interfaz_InteractiveCells()
     End If
 
     ' --- 4) Nombres que apuntan a Interfaz (posibles validaciones o listas) ---
-    For Each nm In ThisWorkbook.names
+    For Each nm In ThisWorkbook.Names
         On Error Resume Next
         Set r = Nothing
         Set r = nm.RefersToRange

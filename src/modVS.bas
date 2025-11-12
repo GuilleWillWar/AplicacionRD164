@@ -65,7 +65,7 @@ End Function
 
 '================= EXPORTA TODO =================
 Public Sub ExportAllVBA()
-Attribute ExportAllVBA.VB_ProcData.VB_Invoke_Func = "e\n14"
+Attribute ExportAllVBA.VB_ProcData.VB_Invoke_Func = " \n14"
     Dim vbProj As VBIDE.VBProject: Set vbProj = ThisWorkbook.VBProject
     Dim path As String: path = SrcPath()
     Dim comp As VBIDE.VBComponent

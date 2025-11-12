@@ -27,8 +27,8 @@ Public Function IsAuthorized(ByVal licensePath As String) As Boolean
 
         ' Normaliza / ignora comentarios y vacías
         linea = Trim$(linea)
-        If Len(linea) = 0 Then GoTo Siguiente
-        If Left$(linea, 1) = "#" Then GoTo Siguiente
+        If Len(linea) = 0 Then GoTo siguiente
+        If Left$(linea, 1) = "#" Then GoTo siguiente
 
         ' Comparación case-insensitive
         If UCase$(Left$(linea, 5)) = "USER:" Then
@@ -45,7 +45,7 @@ Public Function IsAuthorized(ByVal licensePath As String) As Boolean
             End If
         End If
 
-Siguiente:
+siguiente:
     Loop
 
 salida:

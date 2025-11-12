@@ -799,7 +799,7 @@ Public Sub AplicarEstilosPXLSegunRTF(ByVal wdDoc As Object)
 
     For Each p In wdDoc.Paragraphs
         t = Trim$(Replace(p.Range.text, Chr$(13), ""))
-        If Len(t) = 0 Then GoTo Siguiente
+        If Len(t) = 0 Then GoTo siguiente
 
         maxSize = 0: anyBold = False
         For Each ch In p.Range.Characters
@@ -826,7 +826,7 @@ Public Sub AplicarEstilosPXLSegunRTF(ByVal wdDoc As Object)
             p.Range.Font.Reset
         End If
 
-Siguiente:
+siguiente:
     Next p
 
     On Error GoTo 0
